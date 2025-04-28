@@ -81,7 +81,6 @@ const DashboardPage = () => {
                 const firstLang = firstEnv.languages[0].code;
                 setSelectedLanguageCode(firstLang);
 
-                // 🔥 Fetch default translations immediately
                 const key = `${firstEnv.id}_${firstLang}`;
                 setTranslations(mockTranslations[key] || []);
             }

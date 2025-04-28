@@ -25,7 +25,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     }, []);
 
     if (isAuthenticated === null) {
-        return <div className="text-center p-8">Loading...</div>; // or a spinner
+        return <div className="text-center p-8">Loading...</div>;
     }
 
     if (!isAuthenticated) {
