@@ -1,11 +1,6 @@
-import { Navigate } from 'react-router-dom';
-import { JSX, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-interface ProtectedRouteProps {
-    children: JSX.Element;
-}
-
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+export const useAuthentication = () => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
     useEffect(() => {
@@ -15,6 +10,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
                     credentials: 'include',
                 });
 
+                console.log('Checking authentication status...');
+                console.log('Response status:', res.status);
 
                 setIsAuthenticated(res.ok);
             } catch {
@@ -25,15 +22,5 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         checkAuth();
     }, []);
 
-    if (isAuthenticated === null) {
-        return <div className="text-center p-8">Loading...</div>;
-    }
-
-    if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
-    }
-
-    return children;
+    return { isAuthenticated };
 };
-
-export default ProtectedRoute;

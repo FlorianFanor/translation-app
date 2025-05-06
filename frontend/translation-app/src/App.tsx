@@ -6,6 +6,7 @@ import Header from './components/header';
 import Footer from './components/footer';
 import ProtectedRoute from './components/protected-routes';
 import DashboardPage from './pages/dashboard';
+import Logout from './pages/logout';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/logout" element={<Logout />} />
           <Route
             path="/dashboard"
             element={
