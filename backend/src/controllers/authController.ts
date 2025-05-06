@@ -86,3 +86,36 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         }
     }
 }
+
+export const logout = async (req: Request, res: Response): Promise<void> => {
+    try {
+        console.log('Logging out...');
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+        });
+        res.status(200).json({ message: 'Logged out successfully' });
+    } catch (err) {
+        console.error('Caught error:', err);
+
+        if (!res.headersSent) {
+            res.status(500).json({ message: 'Something went wrong' });
+        }
+    }
+}
+
+export const verifyUser = (req: Request, res: Response): void => {
+    const token = req.cookies.token;
+    if (!token) {
+        res.status(401).json({ message: 'Not authenticated' });
+        return;
+    }
+
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET!);
+        res.status(200).json(payload); // userId, email
+    } catch {
+        res.status(401).json({ message: 'Invalid token' });
+    }
+};
