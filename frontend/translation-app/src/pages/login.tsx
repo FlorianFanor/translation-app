@@ -1,71 +1,85 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/auth-context";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 const LoginPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
+        setError("");
 
         try {
-            const res = await fetch('http://localhost:3000/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ email, password }),
-            });
-
-            if (!res.ok) {
-                throw new Error('Invalid credentials');
-            }
-
-            console.log('Login successful!');
+            await login(email, password);
+            navigate("/dashboard");
         } catch (err) {
-            setError((err as Error).message);
+            console.error(err);
+            setError("Invalid email or password");
         }
     };
 
     return (
-
-
-        <div className="min-h-screen flex items-center justify-center">
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+            <form
+                onSubmit={handleSubmit}
+                className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
+                aria-describedby={error ? "login-error" : undefined}
+            >
                 <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
-                {error && <p className="text-red-500 mb-4">{error}</p>}
+                <p className="text-sm text-gray-600 mb-4">
+                    All the fields are required.
+                </p>
+
+                {error && (
+                    <p
+                        id="login-error"
+                        role="alert"
+                        aria-live="assertive"
+                        className="text-sm text-red-600 mb-4"
+                    >
+                        {error}
+                    </p>
+                )}
 
                 <div className="mb-4">
-                    <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="email" >Email</label>
-                    <input
+                    <Label htmlFor="email" className="mb-2">Email *</Label>
+                    <Input
                         id="email"
                         type="email"
-                        className="w-full p-3 border rounded"
+                        autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        aria-invalid={!!error}
                     />
                 </div>
 
                 <div className="mb-6">
-                    <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="password">Password</label>
-                    <input
+                    <Label htmlFor="password" className="mb-2">Password *</Label>
+                    <Input
                         id="password"
                         type="password"
-                        className="w-full p-3 border rounded"
+                        autoComplete="current-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        aria-invalid={!!error}
                     />
                 </div>
 
-                <button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded">
+                <Button type="submit" className="w-full">
                     Login
-                </button>
+                </Button>
             </form>
         </div>
-
     );
 };
 
