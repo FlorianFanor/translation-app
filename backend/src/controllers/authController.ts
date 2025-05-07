@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { AuthenticatedRequest } from '../../middleware/authMiddleware';
 
 const prisma = new PrismaClient();
 
@@ -117,5 +118,46 @@ export const verifyUser = (req: Request, res: Response): void => {
         res.status(200).json(payload); // userId, email
     } catch {
         res.status(401).json({ message: 'Invalid token' });
+    }
+};
+
+// POST /api/organizations
+
+
+export const createOrganization = async (req: AuthenticatedRequest, res: Response) => {
+    const { name } = req.body;
+    const userId = req.user?.userId;
+
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    try {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        if (user.organizationId) {
+            return res.status(400).json({ message: 'User already belongs to an organization' });
+        }
+
+        const organization = await prisma.organization.create({
+            data: {
+                name,
+                users: {
+                    connect: { id: userId },
+                },
+            },
+        });
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                organizationId: organization.id,
+                role: 'ADMIN',
+            },
+        });
+
+        res.status(201).json({ organizationId: organization.id });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Failed to create organization' });
     }
 };
